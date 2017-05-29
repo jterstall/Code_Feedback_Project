@@ -12,13 +12,13 @@ class A:
 class B:
     @ICP_decorator.ICP_decorator
     def greet(self):
-        print "Hello!"
+        pass
 
 # COMMENT
 @ICP_decorator.ICP_decorator
 # Comment
 def greetings(greet):
-    print greet
+    pass
     # COMMENT?
 
 

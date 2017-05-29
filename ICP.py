@@ -44,13 +44,20 @@ def decorate_redbaron(file_name, main_file):
         # Prevent inserting before __future__ imports
         from_import_statements = red.find_all("FromImportNode")
         if from_import_statements and not decorator_import_present:
-            last_from_import_statement = from_import_statements[-1]
+            if len(from_import_statements) == 1:
+                last_from_import_statement = from_import_statements[0]
+            else:
+                last_from_import_statement = from_import_statements[-1]
+            indentation_level = len(str(last_from_import_statement.indentation))
+            if indentation_level > 0:
+                last_from_import_statement.decrease_indentation(indentation_level)
             last_from_import_statement.insert_after("import ICP_decorator")
             sys_path_insert_code = "sys.path.insert(0, r'%s')" % os.getcwd()
             last_from_import_statement.insert_after(sys_path_insert_code)
             last_from_import_statement.insert_after("import sys")
-            if file_name.split('/')[-1] == main_file:
-                red[-1].insert_after("ICP_decorator.pass_result()")
+            if indentation_level > 0:
+                last_from_import_statement.increase_indentation(indentation_level)
+
             red.find_all("DefNode").apply(lambda node: node.decorators.append("@ICP_decorator.ICP_decorator"))
         elif not from_import_statements and not decorator_import_present:
             # Insert necessary code
@@ -58,10 +65,12 @@ def decorate_redbaron(file_name, main_file):
             sys_path_insert_code = "sys.path.insert(0, r'%s')" % os.getcwd()
             red[0].insert_before(sys_path_insert_code)
             red[0].insert_before("import sys")
-            # Main file needs to send resulting data to feedback generation script
-            if file_name.split('/')[-1] == main_file:
-                red[-1].insert_after("ICP_decorator.pass_result()")
             red.find_all("DefNode").apply(lambda node: node.decorators.append("@ICP_decorator.ICP_decorator"))
+
+        # Main file needs to send resulting data to feedback generation script
+        if file_name.split('/')[-1] == main_file:
+            if not str(red[-1].name) == "ICP_decorator":
+                red[-1].insert_after("ICP_decorator.pass_result()")
 
         with open(file_name, "w") as f:
             f.write(red.dumps())
@@ -77,9 +86,10 @@ def run_file(file_name, path, optional_args):
         cmd = "python %s" % ' '.join(optional_args)
     else:
         cmd = "python %s" % file_path
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    output, error = proc.communicate()
-    print output
+    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    # output, error = proc.communicate()
+    # print output
+    os.system(cmd)
     # Revert working directory
     os.chdir(old_path)
 

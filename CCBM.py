@@ -13,6 +13,7 @@ import ICP
 def retrieve_source_code(files_in_dir, modules_in_dir):
     modules_source_code = {}
     for i in range(len(files_in_dir)):
+        print files_in_dir[i]
         with open(files_in_dir[i]) as f:
             red = redbaron.RedBaron(f.read())
         for fn in red.find_all("DefNode"):
@@ -77,7 +78,7 @@ def retrieve_lsi_vectors(modules_source_code, dimension):
     return lsi_vectors
 
 
-# Handles input to this script
+# andles input to this script
 def init_arg_parser():
     parser = argparse.ArgumentParser(description="CCBM calculator")
     parser.add_argument(
