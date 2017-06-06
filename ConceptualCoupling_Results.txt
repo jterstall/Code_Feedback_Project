@@ -1,0 +1,35 @@
+
+ 
+ 
+/Heuristieken-master/end_result/
+ 
+('main_hill_climb', 'config')
+0
+('main_hill_climb', 'functions_team_datanose')
+0
+('main_gen_alg', 'functions_team_datanose')
+0
+('main_random', 'main_gen_alg')
+0
+('main_random', 'main_hill_climb')
+0
+('main_hill_climb', 'main_sim_anneal')
+0
+('main_gen_alg', 'config')
+0
+('main_gen_alg', 'main_sim_anneal')
+0
+('functions_team_datanose', 'config')
+0
+('main_sim_anneal', 'config')
+0
+('main_sim_anneal', 'functions_team_datanose')
+0
+('main_gen_alg', 'main_hill_climb')
+0
+('main_random', 'main_sim_anneal')
+0
+('main_random', 'functions_team_datanose')
+0
+('main_random', 'config')
+0

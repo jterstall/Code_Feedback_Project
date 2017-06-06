@@ -17,17 +17,17 @@ def allow_output():
 
 def retrieve_files_in_dir(path):
     # Retrieve absolute path of all files
-    files_in_dir = [os.path.join(dirpath, f) for (dirpath, _, filenames) in os.walk(
-    path) for f in filenames if f.endswith(".py")]
+    files_in_dir = [os.path.join(dir_path, f) for (dir_path, _, filenames) in os.walk(
+    path) for f in filenames if f.endswith(".py") and not "Coupling_Feedback_Tool" in dir_path]
     return files_in_dir
 
 
-def decorate_all_modules(file_list, main_file):
+def decorate_all_modules(file_list, main_file, path):
     for file_path in file_list:
-        decorate_redbaron(file_path, main_file)
+        decorate_redbaron(file_path, main_file, path)
 
 
-def decorate_redbaron(file_name, main_file):
+def decorate_redbaron(file_name, main_file, path):
     if not file_name.split('/')[-1] == "__init__.py":
         with open(file_name) as f:
             red = redbaron.RedBaron(f.read())
@@ -72,7 +72,8 @@ def decorate_redbaron(file_name, main_file):
             if not str(red[-1].name) == "ICP_decorator":
                 red[-1].insert_after("ICP_decorator.pass_result()")
 
-        with open(file_name, "w") as f:
+        file_name = path + "Coupling_Feedback_Tool/" + file_name.split(path)[-1]
+        with open(file_name, "w+") as f:
             f.write(red.dumps())
 
 def run_file(file_name, path, optional_args):
@@ -86,51 +87,22 @@ def run_file(file_name, path, optional_args):
         cmd = "python %s" % ' '.join(optional_args)
     else:
         cmd = "python %s" % file_path
-    # proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    # output, error = proc.communicate()
-    # print output
     os.system(cmd)
     # Revert working directory
     os.chdir(old_path)
 
 
-# Function handles input to this script
-def init_arg_parser():
-    parser = argparse.ArgumentParser(
-        description="Feedback program based on coupling metrics")
-    parser.add_argument(
-        "path", help="Directory where student assignment is stored (absolute path)")
-    parser.add_argument(
-        "main_file", help="Main file of student assignment used to run the program", type=str)
-    parser.add_argument(
-        "--suppress", help="Suppresses student assignment output", action='store_true')
-    parser.add_argument("optional_args", nargs="*",
-                        help="Any arguments necessary for passing on to student program in command line")
-    # Retrieve user input
-    args, unknown = parser.parse_known_args()
-    args.optional_args.extend(unknown)
-    return args
+def run_ICP(main_file, path, optional_args):
+    new_path = path + "Coupling_Feedback_Tool/"
 
+    suppress_output()
 
-def main():
-    args = init_arg_parser()
+    # If feedback folder exists, script was already run to decorate
+    if not os.path.exists(new_path):
+        os.makedirs(new_path)
+        files_in_dir = retrieve_files_in_dir(path)
+        decorate_all_modules(files_in_dir, main_file, path)
 
-    if args.suppress:
-        suppress_output()
-
-    main_file = args.main_file
-
-    path = args.path
-
-    optional_args = args.optional_args
-
-    files_in_dir = retrieve_files_in_dir(path)
-
-    decorate_all_modules(files_in_dir, main_file)
-
-    run_file(main_file, path, optional_args)
+    run_file(main_file, new_path, optional_args)
 
     allow_output()
-
-if __name__ == '__main__':
-    main()

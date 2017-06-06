@@ -19,7 +19,7 @@ def ICP_class_feedback(ICP_class):
 def create_dependency_graph(ICP):
     G=nx.DiGraph()
     for dependency, weight in ICP.iteritems():
-        dependency_components = dependency.split('--->')
+        dependency_components = dependency.split(':')
         G.add_edge(dependency_components[0], dependency_components[1], calls=weight)
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels=True)
@@ -27,9 +27,16 @@ def create_dependency_graph(ICP):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=calls)
     plt.show()
 
-def CCBM_feedback(ccbm_scores):
-    for i in range(len(ccbm_scores)):
-        ccbm_score = ccbm_scores[i][1]
-        # if ccbm_score > 0.3:
-        print ccbm_scores[i][0]
-        print ccbm_score
+def CCBM_feedback(ccbm_scores, path):
+    # with open('/home/jterstall/Documents/Afstudeerproject_AI/Code/Tool_Results/ConceptualCoupling_Results.txt', 'a') as f:
+    #     f.write("\n\n\n")
+    #     f.write(path.split('/')[-1])
+    #     f.write("\n")
+    #     for score in ccbm_scores:
+    #         f.write(str(score[0]))
+    #         f.write("\n")
+    #         f.write(str(score[1]))
+    #         f.write("\n")
+    for score in ccbm_scores:
+        print score[0]
+        print score[1]
