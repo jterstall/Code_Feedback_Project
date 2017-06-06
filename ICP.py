@@ -1,10 +1,9 @@
 import os
 import sys
+import json
 import inspect
-import argparse
 import redbaron
 import subprocess
-import generate_feedback
 
 
 def suppress_output():
@@ -70,7 +69,7 @@ def decorate_redbaron(file_name, main_file, path):
         # Main file needs to send resulting data to feedback generation script
         if file_name.split('/')[-1] == main_file:
             if not str(red[-1].name) == "ICP_decorator":
-                red[-1].insert_after("ICP_decorator.pass_result()")
+                red[-1].insert_after("ICP_decorator.store_result()")
 
         file_name = path + "Coupling_Feedback_Tool/" + file_name.split(path)[-1]
         with open(file_name, "w+") as f:
@@ -87,15 +86,34 @@ def run_file(file_name, path, optional_args):
         cmd = "python %s" % ' '.join(optional_args)
     else:
         cmd = "python %s" % file_path
-    os.system(cmd)
+    # os.system(cmd)
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
+
     # Revert working directory
     os.chdir(old_path)
+
+def retrieve_ICP_results(path):
+    ICP_class_result_path = path + '/ICP_class_result.json'
+    ICP_module_result_path = path + '/ICP_module_result.json'
+
+    with open(ICP_class_result_path, 'r') as f:
+        try:
+            ICP_class = json.load(f)
+        except ValueError:
+            ICP_class = {}
+            print "Something went wrong..."
+    with open(ICP_module_result_path, 'r') as f:
+        try:
+            ICP_module = json.load(f)
+        except ValueError:
+            ICP_module = {}
+            print "Something went wrong..."
+    return ICP_module, ICP_class
+
 
 
 def run_ICP(main_file, path, optional_args):
     new_path = path + "Coupling_Feedback_Tool/"
-
-    suppress_output()
 
     # If feedback folder exists, script was already run to decorate
     if not os.path.exists(new_path):
@@ -105,4 +123,5 @@ def run_ICP(main_file, path, optional_args):
 
     run_file(main_file, new_path, optional_args)
 
-    allow_output()
+    ICP_module, ICP_class = retrieve_ICP_results(new_path)
+    return ICP_module, ICP_class

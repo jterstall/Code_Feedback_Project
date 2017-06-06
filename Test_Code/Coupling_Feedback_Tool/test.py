@@ -11,4 +11,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-ICP_decorator.pass_result()
+ICP_decorator.store_result()

@@ -1,9 +1,9 @@
 import os
 import sys
+import json
 import inspect
 import redbaron
 import itertools
-import generate_feedback
 
 ICP_module = {}
 ICP_class = {}
@@ -105,7 +105,6 @@ def retrieve_files_in_dir(path):
 
 def fill_class_dict(class_dict, path):
     files_in_path = retrieve_files_in_dir(path)
-    print os.getcwd()
     for file_name in files_in_path:
         classes = []
         with open(file_name) as f:
@@ -118,6 +117,10 @@ def fill_class_dict(class_dict, path):
     return class_dict
 
 
-def pass_result():
-    generate_feedback.ICP_module_feedback(ICP_module)
-    generate_feedback.ICP_class_feedback(ICP_class)
+def store_result():
+    path = os.getcwd()
+    with open(path + '/ICP_class_result.json', 'w+') as f:
+        json.dump(ICP_class, f)
+    with open(path + '/ICP_module_result.json', 'w+') as f:
+        json.dump(ICP_module, f)
+    coupling_feedback_tool.hi()

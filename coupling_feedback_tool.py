@@ -1,5 +1,6 @@
 import ICP
 import argparse
+import feedback_generator
 import ConceptualCoupling
 
 def init_arg_parser():
@@ -19,11 +20,12 @@ def init_arg_parser():
     args.optional_args.extend(unknown)
     return args
 
-
 def main():
     args = init_arg_parser()
-    ConceptualCoupling.run_conceptual_coupling(args.path, args.dimension)
-    ICP.run_ICP(args.main_file, args.path, args.optional_args)
+    CC_files, CC_classes = ConceptualCoupling.run_conceptual_coupling(args.path, args.dimension)
+    ICP_module, ICP_class = ICP.run_ICP(args.main_file, args.path, args.optional_args)
+
+    feedback_generator.generate_feedback(CC_files, CC_classes, ICP_module, ICP_class)
 
 
 if __name__ == '__main__':

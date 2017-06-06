@@ -1,14 +1,11 @@
 from __future__ import division
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
-import generate_feedback
 import numpy as np
 import itertools
 import redbaron
-import argparse
 import sys
 import ICP
-import ast
 import os
 
 
@@ -89,7 +86,6 @@ def retrieve_lsi_vectors(modules_source_code, dimension):
 
     # Dimension to reduce to with Latent Semantic Indexing
     amount_of_features = len(vectorizer.get_feature_names())
-    print vectorizer.get_feature_names()
     if amount_of_features <= dimension:
         dimension = amount_of_features - 1
 
@@ -118,8 +114,6 @@ def run_conceptual_coupling(path, dimension=100):
 
         ccbf_scores = compute_ccbm_scores(module_names_in_dir, lsi_vectors)
 
-        generate_feedback.CCBM_feedback(ccbf_scores,path)
-
     # Compute conceptual coupling between classes
 
     classes_in_dir, classes_source_code = retrieve_source_code_classes(
@@ -131,4 +125,4 @@ def run_conceptual_coupling(path, dimension=100):
 
         ccbc_scores = compute_ccbm_scores(classes_in_dir, lsi_vectors)
 
-        generate_feedback.CCBM_feedback(ccbc_scores,path)
+    return ccbf_scores, ccbc_scores
