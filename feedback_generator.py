@@ -31,12 +31,12 @@ def generate_feedback(CC_files, CC_classes, ICP_module, ICP_class, path):
     print sorted(CC_classes.iteritems(), reverse=True, key = lambda x: x[1])
     print ""
 
-    high_cc_files = [(key, value) for (key, value) in CC_files.iteritems() if value >= 0.5] #Misschien naar 0.5 door kaartkleuren
-    danger_zone_cc_files = dict((key, value) for (key, value) in CC_files.iteritems() if value >= 0.20 and value < 0.65) # ondergrens naar 0.25
+    high_cc_files = [(key, value) for (key, value) in CC_files.iteritems() if value >= 0.5]
+    danger_zone_cc_files = dict((key, value) for (key, value) in CC_files.iteritems() if value >= 0.20 and value < 0.65)
 
     high_cc_classes_same_file = [(key, value) for (key, value) in CC_classes.iteritems() if value > 0.5 and in_same_file(key[0], key[1])]
     high_cc_classes_different_file = [(key, value) for (key, value) in CC_classes.iteritems() if value > 0.5 and not in_same_file(key[0], key[1])]
-    danger_zone_cc_classes_different_file = dict((key, value) for (key, value) in CC_classes.iteritems() if value >= 0.20 and value <= 0.5 and not in_same_file(key[0], key[1])) # Ondergrens naar 0.25? 3_KEES
+    danger_zone_cc_classes_different_file = dict((key, value) for (key, value) in CC_classes.iteritems() if value >= 0.20 and value <= 0.5 and not in_same_file(key[0], key[1]))
     low_cc_classes_same_file = dict((key, value) for (key, value) in CC_classes.iteritems() if value <= 0.12 and in_same_file(key[0], key[1]))
 
     high_icp_files = [(key, value) for (key, value) in ICP_module.iteritems() if value >= 100]
@@ -45,7 +45,7 @@ def generate_feedback(CC_files, CC_classes, ICP_module, ICP_class, path):
     high_icp_classes_same_file = [(key, value) for (key, value) in ICP_class.iteritems() if value >= 100 and in_same_file(key.split(':')[0], key.split(':')[1])]
     high_icp_classes_different_file = [(key, value) for (key, value) in ICP_class.iteritems() if value >= 100  and not in_same_file(key.split(':')[0], key.split(':')[1])]
     danger_zone_icp_classes_different_file = dict((key, value) for (key, value) in ICP_class.iteritems() if value >= 15 and value < 100 and not in_same_file(key.split(':')[0], key.split(':')[1]))
-    low_icp_classes_same_file = [(key, value) for (key, value) in ICP_class.iteritems() if value <= 10 and in_same_file(key.split(':')[0], key.split(':')[1])] # Misschien naar 5 door chipmunks
+    low_icp_classes_same_file = [(key, value) for (key, value) in ICP_class.iteritems() if value <= 10 and in_same_file(key.split(':')[0], key.split(':')[1])]
 
     cc_keys_feedback_given = feedback_high_icp_class(high_icp_classes_different_file, CC_classes)
     feedback_high_cc_different_file_classes(high_cc_classes_different_file, cc_keys_feedback_given)
@@ -77,12 +77,11 @@ def feedback_high_cc_files(high_cc_files):
                 else:
                     given_merge_feedback = True
                     print_statement_high_cc = print_statement_high_cc + '''
-    The following file combination(s) seem to contain a lot of duplicate code
-    between them. It would be better for the maintainability of your
-    code to take the duplicate code and put it into a single file which
-    clearly defines its task. This way, this piece of code will be
-    easily reusable and modifiable for multiple files. Another option is
-    to merge these file combination(s) into a singular file:
+    The following combination(s) of files seem to contain a lot of duplicate
+    code between them. It would improve the maintainability of your
+    code to create a new file that executes the task of this duplicate code.
+    This ensures that this particular piece of code will be reusable and modifiable
+    for multiple files. An alternative solution could be to merge these two files into one:
 
     {0}.py and {1}.py
                     '''.format(cc_cls[0][0], cc_cls[0][1])
@@ -94,11 +93,11 @@ def feedback_high_cc_files(high_cc_files):
                 else:
                     given_possible_merge_feedback = True
                     print_statement_low_cc = print_statement_low_cc + '''
-    The following file combination(s) seem to contain code that performs the
-    task conceptually. This means that they do the same task. It would be
-    better for the readability and maintainablity of your code to identify
-    the code that performs the same task and create a file/class that performs
-    this specific task:
+    The following combination(s) of files seem to contain parts of code that perform similar tasks.
+    It would improve the maintainablity of your code to identify the pieces of code that
+    perform the same task and create a new file/class to move that piece of code to if the
+    structure of your code allows this. This file will then execute the task that was performed
+    in both files:
 
     {0}.py and {1}.py
                     '''.format(cc_cls[0][0], cc_cls[0][1])
@@ -120,10 +119,10 @@ def feedback_high_cc_same_file_classes(high_cc_classes_same_file):
                 else:
                     given_feedback = True
                     print '''
-    These class combinations contain a lot of duplicate code or perform (nearly)
-    the exact same task. It would be better to merge these two classes into one
-    class to improve the modularization of your code by ensuring that each class
-    has one specific task that it performs:
+    The following combination(s) of classes that are located in the same file seem to contain
+    a lot of duplicate code or perform (nearly) the exact same task. It would be better
+    to merge these two classes into one class to improve the modularization of your code by
+    ensuring that each class has only one well-defined task that it performs:
 
     {0} and {1}
                     '''.format(cc_cls[0][0], cc_cls[0][1])
@@ -137,18 +136,19 @@ def feedback_danger_zone_classes(danger_zone_icp_classes_different_file, danger_
             if given_feedback:
                 print '''
     {0} and {1}
-                '''.format(icp_cls[0][0], icp_cls[0][1])
+                '''.format(icp_cls[0].split(':')[0], icp_cls[0].split(':')[1])
             else:
                 given_feedback = True
                 print '''
-    These class combination(s) seem to be performing similar tasks and are dependent
-    on each other. It would be better to move these classes into the same file
-    to ensure that dependencies between files is limited and that each file contains
-    classes that perform similar tasks. This ensures that your code will be easily
-    modified, maintainable and also easily readable by other developers:
+    The following combination(s) of classes seem to be performing similar tasks and are
+    very dependent on each other. This is bad for the maintainablity of your code because
+    they are located in different files. If structurally possible, it would be best to move
+    these classes into the same file to ensure that dependencies between files is limited
+    and that each file contains classes that perform tasks which are similar. This ensures
+    that your program will be easily modifiable and maintainable by other developers:
 
     {0} and {1}
-                '''.format(icp_cls[0][0], icp_cls[0][1])
+                '''.format(icp_cls[0].split(':')[0], icp_cls[0].split(':')[1])
 
 
 def feedback_danger_zone_files(danger_zone_icp_files, danger_zone_cc_files):
@@ -160,17 +160,17 @@ def feedback_danger_zone_files(danger_zone_icp_files, danger_zone_cc_files):
             if given_feedback:
                 print '''
     {0}.py and {1}.py
-                '''.format(icp_file[0][0], icp_file[0][1])
+                '''.format(icp_file[0].split(':')[0], icp_file[0].split(':')[1])
             else:
                 given_feedback = True
                 print '''
-    These file combination(s) seem to perform similar tasks and are also dependent
-    on each other. If possible, it would be best to move these files into one file
-    or split in such a way that each file is not dependent on others and performs a
-    well-defined task:
+    The following combination(s) of files seem to perform similar tasks and are very
+    dependent on each other. If possible, it would be best to merge these files into one file
+    or to rewrite them in such a way that each file is less dependent on others and that each
+    file contains code that perform similar well-defined tasks:
 
     {0}.py and {1}.py
-                '''.format(icp_file[0][0], icp_file[0][1])
+                '''.format(icp_file[0].split(':')[0], icp_file[0].split(':')[1])
 
 
 def feedback_high_icp_class(high_icp_classes_different_file, CC_classes):
@@ -192,21 +192,19 @@ def feedback_high_icp_class(high_icp_classes_different_file, CC_classes):
             if given_merge_feedback:
                 print_statement_high_cc = print_statement_high_cc + '''
     {0} and {1}
-                '''.format(icp_cls[0][0], icp_cls[0][1])
+                '''.format(icp_cls[0].split(':')[0], icp_cls[0].split(':')[1])
             else:
                 given_merge_feedback = True
                 print_statement_high_cc = print_statement_high_cc + '''
-    These class combination(s) seem to be highly dependent on each other.
-    This means that methods from these classes call the other a lot of times.
-    They also seem to contain duplicate code or perform nearly the same task.
-    To improve the maintainability and readability of your code, it would
-    be better to move these classes into the same file so that dependencies
-    are limited to the same file and if possible, it would be better to merge
-    these classes into a single class to make sure that each class performs
-    only one well-defined task:
+    The following combination(s) of classes seem to be too dependent on each other to function
+    without each other. They are also located in a different file and seem to contain duplicate
+    code between them or perform nearly the same task. To improve the maintainability of your code,
+    it would be better to move these classes into the same file so that dependencies are limited
+    to classes in the same file. If possible, it would be best to merge these classes into
+    a single class to make sure that each class performs only one well-defined task:
 
     {0} and {1}
-                '''.format(icp_cls[0][0], icp_cls[0][1])
+                '''.format(icp_cls[0].split(':')[0], icp_cls[0].split(':')[1])
         else:
             if given_move_feedback:
                 print_statement_low_cc = print_statement_low_cc + '''
@@ -215,14 +213,12 @@ def feedback_high_icp_class(high_icp_classes_different_file, CC_classes):
             else:
                 given_move_feedback = True
                 print_statement_low_cc = print_statement_low_cc + '''
-    These class combination(s) seem to be highly dependent on each other.
-    This means that methods from these classes call the other a lot of times.
-    To improve the maintainability and readability of your code, it would
-    be better to move these classes into the same file so that dependencies
-    are limited to the same file:
+    The following combination(s) of classes are too dependent on each other.
+    To improve the maintainability of your code, it would be best to move these classes
+    into the same file so that dependencies are limited to classes in the same file:
 
     {0} and {1}
-                '''.format(icp_cls[0][0], icp_cls[0][1])
+                '''.format(icp_cls[0].split(':')[0], icp_cls[0].split(':')[1])
     print(print_statement_high_cc)
     print(print_statement_low_cc)
     return cc_keys_feedback_given
@@ -244,27 +240,26 @@ def feedback_high_cc_different_file_classes(high_cc_classes_different_file, cc_k
                     else:
                         given_merge_feedback = True
                         print_statement_high_cc = print_statement_high_cc + '''
-    These class combination(s) seem to perform the same task conceptually.
-    This means that either these classes contain a lot of duplicate code or
-    these classes perform nearly the same task. To improve the maintainability
-    and readability of your code, it would be best to move and merge
-    these classes into one class in the same file:
+    The following combination(s) of classes seem to perform the same task conceptually and
+    are located in different files. This means that either these classes contain a lot of
+    duplicate code between them or these classes perform almost the same task. To improve
+    the maintainability of your code, it would be best to move these classes into the same
+    file and if possible, to also merge them into a single class:
 
     {0} and {1}
                         '''.format(cc[0][0], cc[0][1])
                 else:
                     if given_move_feedback:
-                        print_statement_high_cc = print_statement_low_cc + '''
+                        print_statement_low_cc = print_statement_low_cc + '''
     {0} and {1}
                         '''.format(cc[0][0], cc[0][1])
                     else:
                         given_move_feedback = True
                         print_statement_low_cc = print_statement_low_cc + '''
-    These class combination(s) are conceptually highly similar. This
-    means that they perform similar tasks or that part of the source code
-    is reused between these classes. It would be best to move these
-    classes into one file to improve the maintainability and readability
-    of your code:
+    The following combination(s) of classes seem to perform similar tasks while they are
+    located in separate files. This could mean that part of the source code is reused between
+    these classes. It would be best to move these classes into one file to improve the
+    maintainability of your code:
 
     {0} and {1}
                         '''.format(cc[0][0], cc[0][1])
@@ -312,15 +307,16 @@ def feedback_low_coupling(low_icp_classes_same_file, low_cc_classes_same_file, I
                 if print_statement:
                     if low_average_coupling_feedback_given:
                         print '''
-    The same as above applies to file {0}.py:
+    The same as above applies to file {0}.py as well. Classes that can be split are:
                         '''.format(key)
                         print print_statement
                     else:
                         low_average_coupling_feedback_given = True
                         print '''
-    Classes in {0}.py are not that dependent and related to each other,
-    it might be better to split the classes in this file. Class combination(s)
-    that can definitely be split are the following (file_location.class_name):
+    Classes in {0}.py are not dependent on each other nor do they seem to perform similar tasks
+    If possible in the structure of your program, it would be better to split the classes
+    in this file into multiple files. Class combination(s) that can be split are the
+    following classes (file_location.class_name):
                         '''.format(key)
                         print print_statement
 
@@ -334,11 +330,11 @@ def feedback_low_coupling(low_icp_classes_same_file, low_cc_classes_same_file, I
             else:
                 low_coupling_feedback = True
                 print '''
-    The following class combinations(s) seem to not perform similar tasks and
+    The following class combinations(s) seem to perform dissimilar tasks and
     are not highly dependent on each other but are stored in the same file.
-    If possible it would be beneficial to the maintainablity and readability of
-    your code to split these classes into separate files if this does not conflict
-    with the other classes in the file
+    If possible it would be beneficial to the maintainablity of your code to split these
+    classes into multiple separate files if this does not conflict with dependencies of the
+    other classes in the file:
 
     {0} and {1}
                 '''.format(cls[0], cls[1])
