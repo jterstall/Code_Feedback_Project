@@ -1,0 +1,7 @@
+[(u'hello:goodbye', 1), (u'test:hello', 1)]
+
+[(u'hello.A:hello.B', 1), (u'hello.C:hello.B', 0), (u'hello.C:hello.A', 0)]
+
+[(('hello', 'test'), 0.1636331639228607), (('hello', 'goodbye'), 0.07777491383091259), (('goodbye', 'test'), 1.1102230246251578e-16)]
+
+[(('hello.A', 'hello.B'), 1.0), (('hello.C', 'hello.A'), 0.0), (('hello.C', 'hello.B'), 0.0)]

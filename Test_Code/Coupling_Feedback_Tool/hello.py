@@ -3,6 +3,12 @@ sys.path.insert(0, r'/home/jterstall/Documents/Afstudeerproject_AI/Code/My_Code'
 import ICP_decorator
 import goodbye
 
+class C:
+    @ICP_decorator.ICP_decorator
+    def do_something(self):
+        a = 0
+        b = 0
+
 class A:
     @ICP_decorator.ICP_decorator
     def call_b(self):
@@ -15,8 +21,8 @@ class B:
         pass
 
 # COMMENT
-@ICP_decorator.ICP_decorator
 # Comment
+@ICP_decorator.ICP_decorator
 def greetings(greet):
     variable = "this"
     pass

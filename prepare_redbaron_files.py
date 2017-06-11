@@ -7,18 +7,18 @@ def prepare_files(file_path):
         print f
         fst = baron.parse(f.read())
         source_code = baron.dumps(fst)
-        # lines = f.readlines()
-        # lines_to_delete = []
-        # for i, line in enumerate(lines):
-        #     if "print " in line:
-        #         new_line = re.split('\w', line)[0].replace('\t', '    ') + 'pass \n'
-        #         lines[i] = new_line
-            # if "#" in line:
-            #     lines_to_delete.append(i)
-    # with open(file_path, 'w') as f:
-        # for i, line in enumerate(lines):
-        #     if i not in lines_to_delete:
-        #         f.write(line)
+        lines = f.readlines()
+        lines_to_delete = []
+        for i, line in enumerate(lines):
+            if "print " in line:
+                new_line = re.split('\w', line)[0].replace('\t', '    ') + 'pass \n'
+                lines[i] = new_line
+            if "#" in line:
+                lines_to_delete.append(i)
+    with open(file_path, 'w') as f:
+        for i, line in enumerate(lines):
+            if i not in lines_to_delete:
+                f.write(line)
 
 def main():
     path = '/home/jterstall/Documents/Afstudeerproject_AI/Code/student_code/Redbaron_print_error'

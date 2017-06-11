@@ -46,8 +46,7 @@ def ICP_decorator(fn):
 # Skip specifies levels of stack to skip while getting caller name, skip=2
 # is direct caller
 def retrieve_call_information(fn, args):
-    (caller_frame, caller_file_name, caller_line_number, _,
-     _, _) = inspect.getouterframes(inspect.currentframe())[2]
+    (caller_frame, caller_file_name, caller_line_number, _, _, _) = inspect.stack()[2]
 
     module_caller = caller_file_name.split('/')[-1].split('.py')[0]
     caller_line_number = str(caller_line_number)
@@ -123,4 +122,3 @@ def store_result():
         json.dump(ICP_class, f)
     with open(path + '/ICP_module_result.json', 'w+') as f:
         json.dump(ICP_module, f)
-    coupling_feedback_tool.hi()
